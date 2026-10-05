@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 
 const STEPS = [
   { icon: "◎", title: "Study", body: "A real street photo appears. Look at cars, clothes, shop signs, phones, posters." },
-  { icon: "⟷", title: "Dial", body: "Drag the year tuner. Use − / + to fine-tune. Tap the photo to zoom in." },
+  { icon: "⟷", title: "Dial", body: "Drag the year tuner (or use ← →). Fine-tune with − / +. Open the photo to zoom in." },
   { icon: "◉", title: "Lock in", body: "Hit Lock before the shutter closes. You can change your mind until time's up." },
   { icon: "★", title: "Score", body: "The closer you are, the more you get. Nail the exact year for 5,000." },
 ];
@@ -26,7 +26,7 @@ const TIPS = [
 ];
 
 /** Rules + rotating era-spotting tips, shown while everyone waits in the lobby. */
-export function HowToPlay({ variant = "phone" }: { variant?: "phone" | "screen" }) {
+export function HowToPlay({ variant = "compact" }: { variant?: "compact" | "screen" }) {
   const [tip, setTip] = useState(() => Math.floor(Math.random() * TIPS.length));
   useEffect(() => {
     const id = setInterval(() => setTip((t) => (t + 1) % TIPS.length), 6500);

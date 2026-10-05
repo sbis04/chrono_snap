@@ -8,14 +8,17 @@ import { QR } from "../components/QR";
 import { HostPanel } from "../components/HostPanel";
 import { HowToPlay } from "../components/HowToPlay";
 import { CopyLink } from "../components/CopyLink";
+import { FinalStandings } from "../components/FinalStandings";
 import { useCountdown, usePlayers, useResult, useRoom, useUser } from "../hooks";
-import type { Player, Room } from "../types";
+import type { Player, Room, RoundResult } from "../types";
 import { MIN_YEAR, MAX_YEAR } from "../types";
 import { DevelopingPhoto } from "../components/DevelopingPhoto";
 import { TimeDial } from "../components/TimeDial";
 import { SplitFlap } from "../components/SplitFlap";
 import { Logo } from "../components/Logo";
 import { Leaderboard } from "../components/Leaderboard";
+import { Countdown } from "../components/Countdown";
+import { Timeline } from "../components/Timeline";
 import { sfx } from "../sound";
 
 /** undefined = loading, null = not in the room */
@@ -55,6 +58,9 @@ export function Play() {
   return (
     <main className={`play play-${room.status}`}>
       <header className="play-bar">
+        <span className="wide-only play-logo">
+          <Logo size="sm" />
+        </span>
         <span className="code-chip">
           <b>{code}</b>
         </span>
@@ -68,7 +74,7 @@ export function Play() {
       </header>
       {panel && room.hostUid === me.uid && <HostPanel room={room} players={players} meUid={me.uid} onClose={() => setPanel(false)} />}
       {room.status === "lobby" && (room.hostUid === me.uid ? <HostLobby room={room} players={players} /> : <PlayLobby me={me} players={players} hostUid={room.hostUid} />)}
-      {room.status === "guessing" && <PlayGuess key={room.currentRound} room={room} me={me} />}
+      {room.status === "guessing" && <PlayGuess key={room.currentRound} room={room} me={me} players={players} />}
       {room.status === "reveal" && <PlayReveal room={room} me={me} players={players} />}
       {room.status === "finished" && <PlayFinished room={room} me={me} players={players} />}
     </main>
@@ -78,7 +84,8 @@ export function Play() {
 function PlayLobby({ me, players, hostUid }: { me: Player; players: Player[]; hostUid: string }) {
   const hostName = players.find((p) => p.uid === hostUid)?.name ?? "The host";
   return (
-    <section className="play-center stack player-lobby">
+    <section className="lobby-split player-lobby">
+      <div className="lobby-main">
       <div className="polaroid polaroid-sm">
         <div className="polaroid-img">
           <span>{me.name.slice(0, 1).toUpperCase()}</span>
@@ -89,7 +96,10 @@ function PlayLobby({ me, players, hostUid }: { me: Player; players: Player[]; ho
         You're in! <b>{hostName}</b> will start the game.
       </p>
       <Roster players={players} meUid={me.uid} hostUid={hostUid} />
-      <HowToPlay />
+      </div>
+      <div className="lobby-aside">
+        <HowToPlay />
+      </div>
     </section>
   );
 }
@@ -141,7 +151,8 @@ function HostLobby({ room, players }: { room: Room; players: Player[] }) {
     }
   };
   return (
-    <section className="play-center stack host-lobby">
+    <section className="lobby-split host-lobby">
+      <div className="lobby-main">
       <span className="label">Your room</span>
       <SplitFlap value={room.code} size="lg" />
       <CopyLink code={room.code} />
@@ -166,12 +177,15 @@ function HostLobby({ room, players }: { room: Room; players: Player[] }) {
         {busy ? "Loading film…" : players.length < 2 ? "Start solo" : `Start with ${players.length}`}
       </button>
       {error && <p className="error">{error}</p>}
-      <HowToPlay />
+      </div>
+      <div className="lobby-aside">
+        <HowToPlay />
+      </div>
     </section>
   );
 }
 
-function PlayGuess({ room, me }: { room: Room; me: Player }) {
+function PlayGuess({ room, me, players }: { room: Room; me: Player; players: Player[] }) {
   const [year, setYear] = useState(1955);
   const [lockedYear, setLockedYear] = useState<number | null>(null);
   const [editing, setEditing] = useState(true);
@@ -181,19 +195,31 @@ function PlayGuess({ room, me }: { room: Room; me: Player }) {
   const left = useCountdown(room.roundEndsAt?.toMillis() ?? null);
   const total = room.settings.roundSeconds * 1000;
   // The server (rules + reveal) owns the deadline; the local clock only drives
-  // the progress bar, so a skewed phone clock can never lock a player out.
+  // the progress bar, so a skewed device clock can never lock a player out.
 
-  // Restore a guess made before a refresh.
+  // Restore a guess made before a refresh. Guess ids are "{round}_{uid}", so a
+  // previous game in the same room used the same ids: only trust a guess written
+  // during *this* round (or our own pending write), and reset when there is none.
+  // Otherwise a stale cached copy shows "your guess is in" for a round never played.
+  const roundStartMs = (room.roundEndsAt?.toMillis() ?? 0) - total;
   useEffect(() => {
-    return onSnapshot(doc(db, "rooms", room.code, "guesses", `${room.currentRound}_${me.uid}`), (s) => {
-      if (s.exists()) {
-        const y = s.data().year as number;
-        setLockedYear(y);
-        setYear(y);
-        setEditing(false);
-      }
-    }, () => undefined);
-  }, [room.code, room.currentRound, me.uid]);
+    return onSnapshot(
+      doc(db, "rooms", room.code, "guesses", `${room.currentRound}_${me.uid}`),
+      (s) => {
+        const g = s.data() as { year: number; at?: { toMillis(): number } | null } | undefined;
+        const fresh = g && (s.metadata.hasPendingWrites || (g.at != null && g.at.toMillis() >= roundStartMs - 2000));
+        if (g && fresh) {
+          setLockedYear(g.year);
+          setYear(g.year);
+          setEditing(false);
+        } else if (!s.metadata.fromCache) {
+          setLockedYear(null);
+          setEditing(true);
+        }
+      },
+      () => undefined,
+    );
+  }, [room.code, room.currentRound, me.uid, roundStartMs]);
 
   const lock = async () => {
     setSaving(true);
@@ -226,9 +252,14 @@ function PlayGuess({ room, me }: { room: Room; me: Player }) {
       </div>
       <div className="play-photo">
         {room.photo && <DevelopingPhoto src={room.photo.src} onClick={() => setZoom(true)} />}
-        <span className="zoom-hint">Tap to zoom</span>
+        <span className="zoom-hint">⤢ Zoom</span>
       </div>
 
+      <div className="guess-side">
+      <div className="wide-only guess-timer">
+        <Countdown msLeft={left} totalMs={total} size={112} />
+        <p className="prompt">What year is it?</p>
+      </div>
       {editing || lockedYear === null ? (
         <div className="guess-panel">
           <div className="year-readout">
@@ -258,6 +289,21 @@ function PlayGuess({ room, me }: { room: Room; me: Player }) {
           <p className="hint">Waiting for the reveal…</p>
         </div>
       )}
+      <div className="wide-only locked">
+        <span className="label">
+          Locked in · {players.filter((p) => p.lockedRound === room.currentRound).length}/{players.length}
+        </span>
+        <ul className={players.length > 6 ? "is-grid" : ""}>
+          {players.map((p) => (
+            <li key={p.uid} className={p.lockedRound === room.currentRound ? "is-locked" : ""}>
+              <span className="dot" />
+              {p.name}
+              {p.uid === me.uid && <small> (you)</small>}
+            </li>
+          ))}
+        </ul>
+      </div>
+      </div>
 
       {zoom && room.photo && (
         <div className="zoom-layer" onClick={() => setZoom(false)}>
@@ -324,11 +370,22 @@ function PlayReveal({ room, me, players }: { room: Room; me: Player; players: Pl
   const delta = mine?.year != null ? Math.abs(mine.year - result.photo.year) : null;
   const rank = [...players].sort((a, b) => b.score - a.score).findIndex((p) => p.uid === me.uid) + 1;
   return (
-    <section className="play-center stack play-reveal">
+    <section className="play-reveal reveal-split">
+      <div className="reveal-photo-col">
       <figure className="mini-print">
         <DevelopingPhoto src={result.photo.src} alt={result.photo.title} />
-        <figcaption>{result.photo.title}</figcaption>
+        <figcaption>
+          {result.photo.title}
+          <span className="wide-only mini-print-meta">
+            {result.photo.location} · {result.photo.credit} · {result.photo.license} ·{" "}
+            <a href={result.photo.sourceUrl} target="_blank" rel="noreferrer">
+              {result.photo.source}
+            </a>
+          </span>
+        </figcaption>
       </figure>
+      </div>
+      <div className="reveal-info-col">
       <span className="label">The year was</span>
       <SplitFlap value={String(result.photo.year)} size="lg" />
       <p className="verdict">{verdict(delta)}</p>
@@ -349,36 +406,58 @@ function PlayReveal({ room, me, players }: { room: Room; me: Player; players: Pl
       <p className="hint">
         You're <b>#{rank}</b> of {players.length} · {me.score.toLocaleString()} total
       </p>
+      <div className="wide-only reveal-wide-extras">
+        <Timeline result={result} />
+        <Leaderboard rows={revealRows(players, result, me.uid)} highlight={me.uid} compact />
+      </div>
       <NextCountdown room={room} />
       {room.hostUid === me.uid && (
         <button className="btn btn-ghost" onClick={() => startOrAdvance(room.code).catch(() => undefined)}>
           {room.nextAt ? "Skip ahead" : room.currentRound + 1 >= room.settings.totalRounds ? "Final standings" : "Next photo"}
         </button>
       )}
+      </div>
     </section>
   );
 }
 
+/** Top five after this round, plus the viewer if they're further down. */
+function revealRows(players: Player[], result: RoundResult, meUid: string) {
+  const rows = players
+    .map((p) => {
+      const r = result.players[p.uid];
+      return { uid: p.uid, name: p.name, score: r?.total ?? p.score, delta: r?.points ?? 0, sub: r ? (r.year === null ? "no guess" : `guessed ${r.year}`) : undefined };
+    })
+    .sort((a, b) => b.score - a.score || a.name.localeCompare(b.name))
+    .map((r, i) => ({ ...r, rank: i + 1 }));
+  const top = rows.slice(0, 5);
+  const mine = rows.find((r) => r.uid === meUid);
+  return mine && !top.includes(mine) ? [...top.slice(0, 4), mine] : top;
+}
+
 function PlayFinished({ room, me, players }: { room: Room; me: Player; players: Player[] }) {
-  const ranked = [...players].sort((a, b) => b.score - a.score);
-  const rank = ranked.findIndex((p) => p.uid === me.uid) + 1;
-  const medal = ["🥇", "🥈", "🥉"][rank - 1];
+  const [busy, setBusy] = useState(false);
   return (
-    <section className="play-center stack play-final">
-      <span className="label">Final standing</span>
-      <div className="final-rank">
-        {medal && <span className="medal">{medal}</span>}#{rank}
-      </div>
-      <p className="verdict">{me.score.toLocaleString()} points</p>
-      <p className="hint">{rank === 1 ? "Master of the decades. Take a bow." : `Winner: ${ranked[0]?.name}`}</p>
-      <Leaderboard rows={ranked.map((p) => ({ uid: p.uid, name: p.name, score: p.score }))} highlight={me.uid} compact />
+    <FinalStandings room={room} players={players} meUid={me.uid}>
       {room.hostUid === me.uid ? (
-        <button className="btn btn-primary btn-xl btn-shutter" onClick={() => api.resetRoom({ code: room.code }).catch(() => undefined)}>
-          Play again
-        </button>
+        <div className="row">
+          <button
+            className="btn btn-primary btn-xl"
+            disabled={busy}
+            onClick={() => {
+              setBusy(true);
+              api.resetRoom({ code: room.code }).catch(() => setBusy(false));
+            }}
+          >
+            Play again with this crew
+          </button>
+          <Link className="btn btn-ghost" to="/">
+            New room
+          </Link>
+        </div>
       ) : (
-        <p className="hint">Stick around — the host can start another round.</p>
+        <p className="hint">Stick around — the host can start another game.</p>
       )}
-    </section>
+    </FinalStandings>
   );
 }

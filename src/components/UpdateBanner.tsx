@@ -25,7 +25,7 @@ export function UpdateBanner() {
   if (!outdated) return null;
   return (
     <button className="update-banner" onClick={() => window.location.reload()}>
-      New version available · <b>tap to reload</b>
+      New version available · <b>reload</b>
     </button>
   );
 }

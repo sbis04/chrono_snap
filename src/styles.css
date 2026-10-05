@@ -2088,7 +2088,7 @@ kbd {
   align-items: flex-start;
 }
 
-/* Host controls (creator's phone) */
+/* Host controls (creator's controller) */
 
 .host-chip {
   border: 1px solid var(--safelight);
@@ -2559,7 +2559,7 @@ kbd {
   color: var(--paper);
 }
 
-/* Lobby roster (phones) */
+/* Lobby roster (player controller) */
 
 .player-lobby {
   gap: 0.9rem;
@@ -2666,4 +2666,358 @@ kbd {
 
 .update-banner b {
   color: var(--amber);
+}
+
+/* ---------- Responsive player layout ----------
+   Narrow screens: single column. Wide screens (desktop/laptop/tablet landscape):
+   big-screen style two-column layouts — no separate "desktop mode". */
+
+.wide-only {
+  display: none !important;
+}
+
+.lobby-split,
+.reveal-split {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.9rem;
+}
+
+.lobby-main,
+.reveal-photo-col,
+.reveal-info-col {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.9rem;
+}
+
+.lobby-aside {
+  width: 100%;
+}
+
+.guess-side {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mini-print-meta {
+  font-family: var(--f-type);
+  font-size: 0.72rem;
+  color: #6b5a4a;
+  margin-top: 4px;
+}
+
+.mini-print-meta a {
+  color: var(--safelight-deep);
+}
+
+@media (min-width: 1000px) and (min-height: 560px) {
+  .wide-only {
+    display: block !important;
+  }
+
+  .play-logo.wide-only {
+    display: inline-flex !important;
+    margin-right: 10px;
+  }
+
+  .play {
+    max-width: 1480px;
+    padding: 14px 28px 22px;
+  }
+
+  .play-bar {
+    padding-bottom: 14px;
+  }
+
+  /* Guessing: big photo + control column */
+  .play-guess {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 28px;
+    align-items: stretch;
+  }
+
+  .play-guess .timebar {
+    display: none;
+  }
+
+  .play-photo {
+    max-height: none;
+    height: calc(100dvh - 104px);
+  }
+
+  .play-photo .photo-frame {
+    box-shadow: 0 0 0 10px #0a0706, 0 0 0 11px var(--line), 0 30px 70px rgba(0, 0, 0, 0.6);
+    border: none;
+  }
+
+  .guess-side {
+    gap: 18px;
+    max-height: calc(100dvh - 104px);
+    overflow-y: auto;
+    padding: 4px 2px;
+  }
+
+  .guess-timer {
+    display: flex !important;
+    align-items: center;
+    gap: 18px;
+  }
+
+  .guess-timer .prompt {
+    text-align: left;
+    font-size: 2rem;
+  }
+
+  .guess-side .locked {
+    flex: none;
+  }
+
+  .guess-side .locked small {
+    color: var(--paper-dim);
+    font-size: 0.75em;
+  }
+
+  .zoom-hint {
+    pointer-events: none;
+  }
+
+  /* Lobby: room + roster beside the how-to-play guide */
+  .lobby-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 48px;
+    align-items: center;
+    max-width: 1240px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .lobby-aside .howto {
+    margin-top: 0;
+  }
+
+  .lobby-aside .howto-body {
+    font-size: 0.85rem;
+  }
+
+  /* Reveal: print on the left, results/timeline/leaderboard on the right */
+  .reveal-split {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    gap: 40px;
+    align-items: start;
+    justify-content: stretch;
+    text-align: left;
+    max-width: 1440px;
+    width: 100%;
+    margin: 0 auto;
+  }
+
+  .reveal-photo-col {
+    align-items: stretch;
+  }
+
+  .reveal-split .mini-print {
+    width: 100%;
+    padding: 14px 14px 0;
+    transform: rotate(-1deg);
+  }
+
+  .reveal-split .mini-print .photo-frame {
+    aspect-ratio: auto;
+    background: var(--paper);
+  }
+
+  .reveal-split .mini-print .photo-frame img {
+    max-height: calc(100dvh - 260px);
+  }
+
+  .reveal-split .mini-print figcaption {
+    display: block;
+    -webkit-line-clamp: unset;
+    font-size: 1.35rem;
+    padding: 12px 4px 16px;
+  }
+
+  .reveal-info-col {
+    align-items: flex-start;
+    gap: 14px;
+  }
+
+  .reveal-info-col .reveal-stats {
+    max-width: 560px;
+  }
+
+  .reveal-wide-extras {
+    width: 100%;
+    display: flex !important;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  /* Final */
+  .play-final {
+    max-width: 680px;
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+
+/* Shared final standings (all players + big screen) */
+
+.final-you {
+  margin: -6px 0 0;
+  font-family: var(--f-type);
+  letter-spacing: 0.06em;
+  color: var(--amber);
+}
+
+.podium-step.is-me .podium-name {
+  color: var(--fixer);
+}
+
+.podium-step.is-me .podium-block {
+  outline: 3px solid var(--fixer);
+  outline-offset: 3px;
+}
+
+.play-finished .finished {
+  padding: 8px 0 24px;
+}
+
+@media (max-width: 600px) {
+  .finished .podium {
+    gap: 8px;
+  }
+  .finished .podium-name {
+    font-size: 1.1rem;
+    overflow-wrap: anywhere;
+    text-align: center;
+  }
+  .step-1 .podium-name {
+    font-size: 1.35rem;
+  }
+  .finished .podium-score {
+    font-size: 0.95rem;
+  }
+  .finished .podium-block {
+    font-size: 3rem;
+  }
+  .step-1 .podium-block { height: 130px; }
+  .step-2 .podium-block { height: 95px; }
+  .step-3 .podium-block { height: 72px; }
+  .finished .headline {
+    font-size: 2rem;
+  }
+}
+
+/* Wide screens: scale up to fill the space */
+@media (min-width: 1000px) and (min-height: 560px) {
+  .play {
+    max-width: 1720px;
+  }
+
+  .lobby-split {
+    max-width: 1400px;
+    flex: 1;
+  }
+
+  .lobby-main {
+    gap: 1.1rem;
+  }
+
+  .lobby-split .splitflap-lg {
+    font-size: 5.4rem;
+  }
+
+  .lobby-split .polaroid-sm {
+    width: 220px;
+  }
+
+  .lobby-split .polaroid-sm .polaroid-img {
+    font-size: 5rem;
+  }
+
+  .lobby-split .roster {
+    padding: 18px 16px;
+  }
+
+  .lobby-split .roster-tags li {
+    font-size: 1.25rem;
+    padding: 5px 14px 6px;
+  }
+
+  .lobby-split .copy-link {
+    font-size: 1.05rem;
+  }
+
+  .lobby-split .hint {
+    font-size: 1.05rem;
+  }
+
+  .lobby-aside .howto {
+    padding: 24px;
+    gap: 16px;
+  }
+
+  .lobby-aside .howto-steps {
+    gap: 12px;
+  }
+
+  .lobby-aside .howto-steps li {
+    padding: 14px 14px 16px;
+  }
+
+  .lobby-aside .howto-steps b {
+    font-size: 1.45rem;
+  }
+
+  .lobby-aside .howto-body {
+    font-size: 0.95rem;
+  }
+
+  .lobby-aside .howto-points b {
+    font-size: 1.3rem;
+  }
+
+  .lobby-aside .howto-tip {
+    font-size: 1rem;
+  }
+
+  .guess-side .year-big {
+    font-size: 5.2rem;
+  }
+
+  .guess-side .btn-shutter {
+    font-size: 1.8rem;
+    padding: 1.15rem;
+  }
+}
+
+/* Stat boxes: balanced padding (narrow: centered; wide: left-aligned) */
+.reveal-stats > div {
+  padding: 12px 10px;
+  gap: 6px;
+}
+
+@media (min-width: 1000px) and (min-height: 560px) {
+  .reveal-info-col .reveal-stats {
+    gap: 12px;
+  }
+  .reveal-info-col .reveal-stats > div {
+    padding: 16px 20px 14px;
+  }
+  .reveal-info-col .reveal-stats b {
+    font-size: 1.8rem;
+    line-height: 1.1;
+  }
 }

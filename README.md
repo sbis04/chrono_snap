@@ -58,9 +58,9 @@ Everyone sees the same archival street photo. Players study the cars, clothes, s
 | Step | Room creator (phone) | Other players (phone) | Big screen (optional) |
 |---|---|---|---|
 | **Lobby** | Sees code, QR and share link; taps **Start** | Joins with code or link and picks a name | Shows code, QR and a "contact sheet" of who's in |
-| **Guess** (30–60s) | Studies the photo, drags the year dial, **Locks in** | Same | Shows the photo, countdown and who has locked in |
+| **Guess** (15–60s) | Studies the photo, drags the year dial, **Locks in** | Same | Shows the photo, countdown and who has locked in |
 | **Reveal** | Sees the true year, their points and rank; can **Skip ahead** | Same, without Skip | Split-flap year, timeline of everyone's guesses, leaderboard |
-| **Next** | Starts automatically after 10–25s (or manually) | — | — |
+| **Next** | Starts automatically after 5–15s (or manually) | — | — |
 | **Final** | Podium, full ranking, **Play again** | Final rank and ranking | Podium and full ranking |
 
 A round ends when the timer runs out **or** as soon as every player has locked in.

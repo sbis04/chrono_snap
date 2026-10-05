@@ -14,10 +14,11 @@ import { Leaderboard } from "../components/Leaderboard";
 import { NextCountdown } from "../components/NextCountdown";
 import { HowToPlay } from "../components/HowToPlay";
 import { CopyLink } from "../components/CopyLink";
+import { FinalStandings } from "../components/FinalStandings";
 import { isMuted, setMuted, sfx } from "../sound";
 import { recentIds, rememberPhotos, useServerTimerNudges } from "../game";
 
-// Keep the reveal on one screen for big groups; everyone sees their own rank on their phone.
+// Keep the reveal on one screen for big groups; everyone sees their own rank on their own screen.
 const REVEAL_ROWS = 5;
 
 export function Host() {
@@ -106,7 +107,7 @@ function Lobby({ room, players, busy, isHost, onStart }: { room: Room; players: 
   return (
     <section className="lobby">
       <div className="lobby-join">
-        <p className="kicker">Grab your phone · go to</p>
+        <p className="kicker">Join from any device · go to</p>
         <p className="join-url">{window.location.host}</p>
         <p className="kicker">and enter the code</p>
         <SplitFlap value={room.code} size="xl" spin={14} />
@@ -290,7 +291,7 @@ function Reveal({ room, players, busy, isHost, onNext }: { room: Room; players: 
         )}
         <Timeline result={result} />
         <Leaderboard rows={rows.slice(0, REVEAL_ROWS)} compact />
-        {rows.length > REVEAL_ROWS && <p className="hint lb-more">…and {rows.length - REVEAL_ROWS} more on their phones</p>}
+        {rows.length > REVEAL_ROWS && <p className="hint lb-more">…and {rows.length - REVEAL_ROWS} more</p>}
       </div>
     </section>
   );
@@ -312,33 +313,8 @@ function buildRows(players: Player[], result: RoundResult | null) {
 }
 
 function Finished({ room, players, busy, isHost, onAgain }: { room: Room; players: Player[]; busy: boolean; isHost: boolean; onAgain: () => void }) {
-  const ranked = [...players].sort((a, b) => b.score - a.score);
-  useEffect(() => {
-    sfx.fanfare();
-  }, []);
-  const podium = [ranked[1], ranked[0], ranked[2]];
   return (
-    <section className="finished">
-      <p className="kicker">
-        Final standings · {room.currentRound + 1} {room.currentRound === 0 ? "photo" : "photos"}
-      </p>
-      <h1 className="headline">The archive has spoken</h1>
-      <div className="podium">
-        {podium.map((p, i) =>
-          p ? (
-            <div key={p.uid} className={`podium-step step-${[2, 1, 3][i]}`} style={{ animationDelay: `${[400, 900, 0][i]}ms` }}>
-              <span className="podium-name">{p.name}</span>
-              <span className="podium-score">{p.score.toLocaleString()}</span>
-              <div className="podium-block">
-                <span>{[2, 1, 3][i]}</span>
-              </div>
-            </div>
-          ) : (
-            <div key={i} className="podium-step podium-empty" />
-          ),
-        )}
-      </div>
-      {ranked.length > 3 && <Leaderboard rows={ranked.slice(3).map((p) => ({ uid: p.uid, name: p.name, score: p.score }))} compact startRank={4} />}
+    <FinalStandings room={room} players={players}>
       {isHost && (
         <div className="row">
           <button className="btn btn-primary btn-xl" onClick={onAgain} disabled={busy}>
@@ -349,6 +325,6 @@ function Finished({ room, players, busy, isHost, onAgain }: { room: Room; player
           </Link>
         </div>
       )}
-    </section>
+    </FinalStandings>
   );
 }

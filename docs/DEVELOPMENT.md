@@ -166,9 +166,9 @@ That's on the order of **hundreds of games per month at $0**. Hosting egress is 
 
 | Setting | Where | Default |
 |---|---|---|
-| Rounds per game | Create-room form → `settings.totalRounds` | 5 (5/8/10; server allows 1–15) |
-| Seconds per photo | form → `settings.roundSeconds` | 45 (30/45/60; server allows 10–120) |
-| Auto-advance after reveal | form → `settings.autoAdvanceSeconds` | 15 (Manual/10/15/25; server allows 0–60) |
+| Rounds per game | Create-room form → `settings.totalRounds` | 5 (5/8/10/15; server allows 1–15) |
+| Seconds per photo | form → `settings.roundSeconds` | 45 (15/30/45/60; server allows 10–120) |
+| Auto-advance after reveal | form → `settings.autoAdvanceSeconds` | 5 (Manual/5/10/15; server allows 0–60) |
 | Reveal grace period | `REVEAL_GRACE_MS` in `functions/src/index.ts` | 1500 ms |
 | Room lifetime | `ROOM_TTL_MS` | 24 h |
 | Scoring curve | `functions/src/scoring.ts` | 5000 · e^(−0.15·Δ) |

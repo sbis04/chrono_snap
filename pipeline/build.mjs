@@ -145,6 +145,9 @@ function cleanTitle(raw, location) {
   let t = raw
     .replace(/\((?:[A-Z]{2,5}[- ]?)?[\d-]{4,}\)/g, "") // (CHS-6358), (23399378513)
     .replace(/\((?:NYPL|LOC)[^)]*\)/gi, "")
+    .replace(/\s*-?\s*geograph(?:\.org\.uk)?\s*-\s*\d+(?:-by-[\w-]+)?/gi, "") // "geograph-3065865-by-Ben-Brooksbank"
+    .replace(/[-_]by[-_][A-Z][\w-]+$/g, "")
+    .replace(/\(\s*geograph[^)]*\)/gi, "")
     .replace(/[_]+/g, " ")
     .replace(/\s{2,}/g, " ")
     .trim()

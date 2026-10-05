@@ -8,13 +8,13 @@ import { Logo } from "../components/Logo";
 import { SplitFlap } from "../components/SplitFlap";
 import { sfx } from "../sound";
 
-const ROUND_OPTIONS = [5, 8, 10];
-const SECOND_OPTIONS = [30, 45, 60];
+const ROUND_OPTIONS = [5, 8, 10, 15];
+const SECOND_OPTIONS = [15, 30, 45, 60];
 const AUTO_OPTIONS: [number, string][] = [
   [0, "Manual"],
+  [5, "5s"],
   [10, "10s"],
   [15, "15s"],
-  [25, "25s"],
 ];
 
 export function Home() {
@@ -24,7 +24,7 @@ export function Home() {
   const [name, setName] = useLocalStorage("cs-name", "");
   const [rounds, setRounds] = useState(5);
   const [seconds, setSeconds] = useState(45);
-  const [auto, setAuto] = useState(15);
+  const [auto, setAuto] = useState(5);
   const [busy, setBusy] = useState<"join" | "host" | null>(null);
   const [error, setError] = useState("");
   const [tab, setTab] = useState<"join" | "host">("join");
@@ -234,7 +234,7 @@ export function Home() {
             <button className="btn btn-primary" onClick={host} disabled={busy !== null}>
               {busy === "host" ? "Loading film…" : "Create room & play"}
             </button>
-            <p className="hint small">You play too. Share the code, then start from your phone. Want a big screen for a meeting? Open it from the lobby.</p>
+            <p className="hint small">You play too. Share the link, then start when everyone's in. Presenting to a room? Open the big-screen view from the lobby.</p>
           </div>
         )}
         {error && <p className="error" role="alert">{error}</p>}
@@ -245,7 +245,7 @@ export function Home() {
           <b>Study</b> cars, clothes, signs & shopfronts.
         </li>
         <li>
-          <b>Dial</b> in the year on your phone.
+          <b>Dial</b> in the year you think it is.
         </li>
         <li>
           <b>Score</b> up to 5,000 for a dead-on guess.

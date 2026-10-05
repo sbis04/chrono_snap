@@ -50,6 +50,7 @@ interface GuessDoc {
   uid: string;
   round: number;
   year: number;
+  at?: Timestamp;
 }
 
 const roomRef = (code: string) => db.collection("rooms").doc(code);
@@ -91,7 +92,7 @@ export const createRoom = onCall(async (req) => {
   }
   const totalRounds = clamp(req.data?.totalRounds, 1, Math.min(15, PHOTOS.length), 5);
   const roundSeconds = clamp(req.data?.roundSeconds, 10, 120, 40);
-  const autoAdvanceSeconds = clamp(req.data?.autoAdvanceSeconds, 0, 60, 15);
+  const autoAdvanceSeconds = clamp(req.data?.autoAdvanceSeconds, 0, 60, 5);
 
   for (let attempt = 0; attempt < 8; attempt++) {
     const code = Array.from({ length: 4 }, () => CODE_ALPHABET[Math.floor(Math.random() * CODE_ALPHABET.length)]).join("");
@@ -262,9 +263,13 @@ async function doReveal(
       tx.get(ref.collection("players")),
       tx.get(ref.collection("guesses").where("round", "==", round)),
     ]);
+    // Ignore leftovers from an earlier game in this room (same "{round}_{uid}" ids):
+    // a real guess for this round is stamped after the round began.
+    const roundStartMs = room.roundEndsAt ? room.roundEndsAt.toMillis() - room.settings.roundSeconds * 1000 - 2000 : 0;
     const guesses = new Map<string, GuessDoc>();
     guessesSnap.forEach((d) => {
       const g = d.data() as GuessDoc;
+      if (g.at && g.at.toMillis() < roundStartMs) return;
       guesses.set(g.uid, g);
     });
 

@@ -6,6 +6,8 @@ export interface Row {
   score: number;
   delta?: number;
   sub?: string;
+  /** Explicit rank, for lists that skip rows (e.g. top 4 + you). */
+  rank?: number;
 }
 
 /** Ranked list that FLIP-animates rows into their new places when scores change. */
@@ -38,9 +40,9 @@ export function Leaderboard({ rows, highlight, compact = false, startRank = 1 }:
             if (el) refs.current.set(r.uid, el);
             else refs.current.delete(r.uid);
           }}
-          className={`lb-row ${r.uid === highlight ? "is-me" : ""} ${i + startRank === 1 ? "is-first" : ""}`}
+          className={`lb-row ${r.uid === highlight ? "is-me" : ""} ${(r.rank ?? i + startRank) === 1 ? "is-first" : ""}`}
         >
-          <span className="lb-rank">{i + startRank}</span>
+          <span className="lb-rank">{r.rank ?? i + startRank}</span>
           <span className="lb-name">
             {r.name}
             {r.sub && <small>{r.sub}</small>}
