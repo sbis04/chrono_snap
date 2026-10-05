@@ -1,0 +1,24 @@
+<!doctype html>
+<!-- Dev-only: preview README.md roughly as GitHub renders it (dark theme).
+     http://localhost:5173/dev/readme-preview.html -->
+<html>
+<head>
+<meta charset="utf-8" />
+<base href="/" />
+<title>README preview</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/github-markdown-css/5.5.1/github-markdown-dark.min.css" />
+<style>
+  body { margin: 0; background: #0d1117; }
+  .markdown-body { box-sizing: border-box; max-width: 1012px; margin: 0 auto; padding: 45px; }
+</style>
+</head>
+<body>
+  <article class="markdown-body" id="out">Loading…</article>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/12.0.2/marked.min.js"></script>
+  <script>
+    fetch("/README.md?raw").then((r) => r.text()).then((md) => {
+      document.getElementById("out").innerHTML = marked.parse(md.replace(/^export default .*$/m, ""));
+    });
+  </script>
+</body>
+</html>

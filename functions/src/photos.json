@@ -2380,23 +2380,6 @@
     "verified": false
   },
   {
-    "id": "7a1abb28db7e",
-    "src": "/photos/7a1abb28db7e.d80e9720.webp",
-    "w": 1600,
-    "h": 1065,
-    "year": 1996,
-    "title": "Street life in Washington, D.C.",
-    "location": "Washington, D.C.",
-    "region": "North America",
-    "source": "Wikimedia Commons",
-    "credit": "Elvert Barnes",
-    "license": "CC BY-SA 2.0",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Barry_1996_02.jpg",
-    "clues": [],
-    "sourceId": "wm_48632554",
-    "verified": false
-  },
-  {
     "id": "e82aeaf88bf2",
     "src": "/photos/e82aeaf88bf2.8c986bb0.webp",
     "w": 1600,
@@ -2445,6 +2428,23 @@
     "sourceUrl": "https://commons.wikimedia.org/wiki/File:RAWA_protest_rally_against_Taliban_in_Peshawar_April28-1998.jpg",
     "clues": [],
     "sourceId": "wm_5896797",
+    "verified": false
+  },
+  {
+    "id": "2e1981a6c62a",
+    "src": "/photos/2e1981a6c62a.f72e0ba8.webp",
+    "w": 1600,
+    "h": 1123,
+    "year": 1999,
+    "title": "Division Street Bridge (east) in Chicago, 1999",
+    "location": "Chicago",
+    "region": "North America",
+    "source": "Wikimedia Commons",
+    "credit": "Jet Lowe",
+    "license": "Public domain",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Division_Street_Bridge_(east)_in_Chicago,_1999.jpg",
+    "clues": [],
+    "sourceId": "wm_26344419",
     "verified": false
   },
   {
@@ -2992,23 +2992,6 @@
     "verified": false
   },
   {
-    "id": "95e36096bb16",
-    "src": "/photos/95e36096bb16.1ff2525f.webp",
-    "w": 1600,
-    "h": 1067,
-    "year": 2024,
-    "title": "Ishøj tram 2024 1",
-    "location": "Copenhagen",
-    "region": "Europe",
-    "source": "Wikimedia Commons",
-    "credit": "Smiley.toerist",
-    "license": "CC BY-SA 4.0",
-    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ish%C3%B8j_tram_2024_1.jpg",
-    "clues": [],
-    "sourceId": "wm_151746983",
-    "verified": false
-  },
-  {
     "id": "4ea419f8ae02",
     "src": "/photos/4ea419f8ae02.76c01343.webp",
     "w": 1600,
@@ -3023,6 +3006,23 @@
     "sourceUrl": "https://commons.wikimedia.org/wiki/File:Diyarbak%C4%B1r_in_2024_6898.jpg",
     "clues": [],
     "sourceId": "wm_155151462",
+    "verified": false
+  },
+  {
+    "id": "95e36096bb16",
+    "src": "/photos/95e36096bb16.1ff2525f.webp",
+    "w": 1600,
+    "h": 1067,
+    "year": 2024,
+    "title": "Ishøj tram 2024 1",
+    "location": "Copenhagen",
+    "region": "Europe",
+    "source": "Wikimedia Commons",
+    "credit": "Smiley.toerist",
+    "license": "CC BY-SA 4.0",
+    "sourceUrl": "https://commons.wikimedia.org/wiki/File:Ish%C3%B8j_tram_2024_1.jpg",
+    "clues": [],
+    "sourceId": "wm_151746983",
     "verified": false
   },
   {

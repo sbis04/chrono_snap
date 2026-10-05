@@ -319,7 +319,9 @@ function Finished({ room, players, busy, isHost, onAgain }: { room: Room; player
   const podium = [ranked[1], ranked[0], ranked[2]];
   return (
     <section className="finished">
-      <p className="kicker">Final standings · {room.settings.totalRounds} photos</p>
+      <p className="kicker">
+        Final standings · {room.currentRound + 1} {room.currentRound === 0 ? "photo" : "photos"}
+      </p>
       <h1 className="headline">The archive has spoken</h1>
       <div className="podium">
         {podium.map((p, i) =>

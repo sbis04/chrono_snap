@@ -1,21 +1,57 @@
-# ChronoSnap
+<p align="center">
+  <img src="docs/images/cover.jpg" alt="ChronoSnap: the big-screen reveal with a split-flap year, guess timeline and leaderboard, alongside the phone controller" width="100%" />
+</p>
 
-**One photo. One year. How well do you know your decades?**
+<h1 align="center">ChronoSnap</h1>
 
-ChronoSnap is a multiplayer, browser-based guessing game for team meetings and icebreakers. Everyone sees the same archival street photo. Players study the cars, clothes, shop signs and street furniture, then dial in the year it was taken. The closer the guess, the more points.
+<p align="center">
+  <b>One photo. One year. How well do you know your decades?</b><br />
+  A multiplayer time-travel photo guessing game for team meetings and icebreakers.
+</p>
 
-- **No downloads, no accounts.** Players join from any phone or laptop with a 4-letter room code, a QR code, or a **one-click invite link** (`…/ABCD`). Paste it in chat and people land on a "You're invited" screen: type a name, tap Join.
-- **The creator is the host, and plays too.** A **Host** panel on their phone lets them start, end a round early, skip ahead, remove players or end the game.
-
-**Live:** <https://chronosnap-bu722.web.app>
-- **Hands-free rounds.** A server-side timer ends each round, and the next photo starts on its own after the reveal.
-- **Optional big screen.** Open the spectator view on a laptop and share it in Meet, Zoom or Teams.
-- **180 public-domain photos from around the world**: 30 each from South Asia, Europe, UK & Ireland, North America, East Asia and the rest of the world, spread evenly across 15 decades (1880s–2020s). Every game mixes decades and regions, and a room never repeats photos.
-- **Built-in how-to-play guide** in the lobby while everyone waits, with rotating "spot the era" tips.
-
-<p align="center"><em>Darkroom aesthetic: safelight red, silver-gelatin paper, split-flap boards, photos that "develop" on screen.</em></p>
+<p align="center">
+  <a href="https://chronosnap-bu722.web.app"><b>▶ Play now</b></a> ·
+  <a href="docs/ARCHITECTURE.md">Architecture</a> ·
+  <a href="docs/PHOTO_PIPELINE.md">Photo pipeline</a> ·
+  <a href="docs/DEVELOPMENT.md">Development</a>
+</p>
 
 ---
+
+Everyone sees the same archival street photo. Players study the cars, clothes, shop signs and street furniture, then dial in the year it was taken on their phone. The closer the guess, the more points. It works in a meeting room or over Meet, Zoom or Teams.
+
+- **No downloads, no accounts.** Join from any phone or laptop with a 4-letter room code, a QR code, or a **one-click invite link** (`…/ABCD`). Paste it in chat and people land on a "You're invited" screen: type a name, tap Join.
+- **The creator is the host, and plays too.** A **Host** panel on their phone lets them start, end a round early, skip ahead, remove players or end the game.
+- **Hands-free rounds.** A server-side timer ends each round (or ends it early once everyone has locked in), and the next photo starts on its own after the reveal.
+- **Optional big screen.** A spectator view to screen-share: split-flap year reveals, a timeline of everyone's guesses, a live leaderboard.
+- **180 public-domain photos from around the world**: 30 each from South Asia, Europe, UK & Ireland, North America, East Asia and the rest of the world, spread evenly from the 1880s to 2025. Every game mixes decades and regions, and a room never repeats photos.
+- **Built-in how-to-play guide** in the lobby while everyone waits, with rotating "spot the era" tips.
+- **A darkroom aesthetic:** safelight red, silver-gelatin paper, photos that "develop" on screen, a radio-tuner year dial, and synthesized shutter and flap sounds.
+
+## Screenshots
+
+### Big screen (optional, for screen-sharing)
+
+<table>
+  <tr>
+    <td width="50%" valign="top"><img src="docs/images/screen-lobby.webp" alt="Lobby: room code on split-flap tiles, QR code, copy-link pill, how-to-play guide and a contact sheet of 10 players" /><br /><sub><b>Lobby:</b> code, QR, one-click invite link, how-to-play, who's in</sub></td>
+    <td width="50%" valign="top"><img src="docs/images/screen-guessing.webp" alt="Guessing: a hand-coloured 1904 London street photo with a countdown ring and the locked-in status of each player" /><br /><sub><b>Guessing:</b> the photo, the countdown, who has locked in</sub></td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top"><img src="docs/images/screen-reveal.webp" alt="Reveal: the year 1904 on split-flap tiles, every player's guess pinned on a timeline, and the leaderboard with points earned" /><br /><sub><b>Reveal:</b> split-flap year, guess timeline, leaderboard</sub></td>
+    <td width="50%" valign="top"><img src="docs/images/screen-final.webp" alt="Final standings: a gold, silver and bronze podium with the full ranking below" /><br /><sub><b>Final:</b> podium and full ranking</sub></td>
+  </tr>
+</table>
+
+### Phone controller (every player, including the host)
+
+<table>
+  <tr>
+    <td width="33%" valign="top"><img src="docs/images/phone-lobby.webp" alt="Host's phone lobby with room code, copy link, QR code, player tags and a Start button" /><br /><sub><b>Lobby:</b> share link, who's in, Start (host)</sub></td>
+    <td width="33%" valign="top"><img src="docs/images/phone-dial.webp" alt="Phone guessing screen with the photo, a big 1908 year readout, a radio-tuner year dial and a Lock in button" /><br /><sub><b>Guess:</b> drag the tuner, lock in</sub></td>
+    <td width="33%" valign="top"><img src="docs/images/phone-reveal.webp" alt="Phone reveal showing the year 1904, the player's guess of 1908, 4 years off and +2,744 points" /><br /><sub><b>Reveal:</b> your guess, how far off, points</sub></td>
+  </tr>
+</table>
 
 ## How a game works
 
@@ -112,11 +148,16 @@ chrono_snap/
 │   └── photos.json         answer key (server-only, generated)
 ├── pipeline/               offline ETL: fetch → curate → build
 ├── public/photos/          180 WebP photos (generated, ~46 MB)
-├── dev/                    emulator launcher, bot players, phone-frame preview
+├── docs/                   architecture, photo pipeline, development docs
+│   └── images/             README cover + screenshots (built by dev/readme-images.mjs)
+├── dev/                    emulator launcher, bot players, phone-frame + README previews
 ├── firestore.rules         client access rules
-└── firebase.json           Hosting, Firestore, Functions and emulator config
+├── firebase.json           Hosting, Firestore, Functions and emulator config
+└── LICENSE                 MIT
 ```
 
-## Photo credits
+## License
 
-All photos are public domain or openly licensed (CC0, CC BY, CC BY-SA), mostly via Wikimedia Commons. Each reveal shows the photographer, licence and a link to the source page.
+The code is released under the [MIT License](LICENSE). © 2026 Souvik Biswas.
+
+The photos are **not** covered by the MIT License. Each keeps its original licence: public domain, CC0, CC BY or CC BY-SA, mostly via Wikimedia Commons. Every reveal shows the photographer, the licence and a link to the source page, and the full credit list lives in `functions/src/photos.json`.
