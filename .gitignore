@@ -1,0 +1,12 @@
+node_modules
+dist
+functions/lib
+functions/node_modules
+pipeline/out/cache
+pipeline/out/candidates.json
+*.log
+.firebase
+.env.local
+*-debug.log
+tsconfig.tsbuildinfo
+.DS_Store

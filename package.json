@@ -1,0 +1,35 @@
+{
+  "name": "chrono-snap",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "emulators": "bash dev/emulators.sh",
+    "dev:emu": "VITE_USE_EMULATORS=true vite",
+    "pipeline:fetch": "node pipeline/fetch.mjs",
+    "pipeline:curate": "node pipeline/curate-server.mjs",
+    "pipeline:build": "node pipeline/build.mjs",
+    "deploy": "npm run build && npm --prefix functions run build && firebase deploy",
+    "bots": "node dev/bots.mjs"
+  },
+  "dependencies": {
+    "firebase": "^12.19.0",
+    "qrcode": "^1.5.4",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4"
+  },
+  "devDependencies": {
+    "@types/qrcode": "^1.5.6",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@vitejs/plugin-react": "^6.1.1",
+    "firebase-tools": "^15.32.1",
+    "sharp": "^0.35.5",
+    "typescript": "^6.0.0",
+    "vite": "^8.3.2"
+  }
+}

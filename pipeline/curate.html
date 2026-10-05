@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ChronoSnap Curation</title>
+<style>
+  :root { --ink:#120d0b; --paper:#f1e6d0; --red:#e0402f; --teal:#4fb3a5; --line:#3b2e27; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--ink); color:var(--paper); font-family: "Courier New", monospace; }
+  header { position:sticky; top:0; z-index:2; background:#1c1512; border-bottom:1px solid var(--line); padding:10px 16px; display:flex; gap:12px; flex-wrap:wrap; align-items:center; }
+  header b { font-size:1.1rem; }
+  select, input, textarea, button { font:inherit; }
+  select, input, textarea { background:#2a201b; color:var(--paper); border:1px solid var(--line); border-radius:6px; padding:4px 8px; }
+  .stats { margin-left:auto; opacity:.8; }
+  main { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px; padding:16px; }
+  .card { background:#1c1512; border:2px solid var(--line); border-radius:10px; overflow:hidden; display:flex; flex-direction:column; }
+  .card.approved { border-color:var(--teal); }
+  .card.rejected { opacity:.35; }
+  .card.focus { outline:3px solid #f0a73a; }
+  .card img { width:100%; aspect-ratio:4/3; object-fit:cover; background:#000; cursor:zoom-in; }
+  .meta { padding:10px; display:flex; flex-direction:column; gap:6px; font-size:.82rem; }
+  .meta .year { font-size:1.4rem; font-weight:bold; color:#f0a73a; }
+  .meta input, .meta textarea { width:100%; }
+  .meta textarea { min-height:44px; }
+  .desc { opacity:.7; max-height:4.5em; overflow:auto; }
+  .actions { display:flex; gap:8px; }
+  .actions button { flex:1; border:none; border-radius:6px; padding:8px; cursor:pointer; font-weight:bold; }
+  .ok { background:var(--teal); color:var(--ink); }
+  .no { background:var(--red); color:var(--paper); }
+  .clear { background:#3b2e27; color:var(--paper); flex:0 0 auto !important; }
+  dialog { padding:0; border:none; background:#000; max-width:95vw; max-height:95vh; }
+  dialog img { max-width:95vw; max-height:95vh; display:block; }
+</style>
+</head>
+<body>
+<header>
+  <b>ChronoSnap curation</b>
+  <label>Decade <select id="decade"><option value="">All</option></select></label>
+  <label>Show <select id="show"><option value="todo">Undecided</option><option value="approved">Approved</option><option value="rejected">Rejected</option><option value="all">All</option></select></label>
+  <span>Keys: <kbd>A</kbd> approve · <kbd>R</kbd> reject · <kbd>J/K</kbd> move</span>
+  <span class="stats" id="stats"></span>
+</header>
+<main id="grid"></main>
+<dialog id="zoom"><img id="zoomImg" alt="" /></dialog>
+<script>
+let candidates = [], decisions = {}, visible = [], focus = 0;
+const $ = (s) => document.querySelector(s);
+const small = (url) => url.replace(/\/(\d+)px-/, "/640px-");
+
+async function load() {
+  const r = await (await fetch("/api/candidates")).json();
+  candidates = r.candidates; decisions = r.decisions;
+  const decades = [...new Set(candidates.map((c) => Math.floor(c.year / 10) * 10))].sort();
+  $("#decade").innerHTML = '<option value="">All</option>' + decades.map((d) => `<option>${d}</option>`).join("");
+  render();
+}
+
+function stats() {
+  const vals = Object.values(decisions);
+  $("#stats").textContent = `${vals.filter((d) => d.status === "approved").length} approved · ${vals.filter((d) => d.status === "rejected").length} rejected · ${candidates.length} candidates`;
+}
+
+function render() {
+  const dec = $("#decade").value, show = $("#show").value;
+  visible = candidates.filter((c) => {
+    if (dec && Math.floor(c.year / 10) * 10 !== Number(dec)) return false;
+    const s = decisions[c.id]?.status;
+    return show === "all" || (show === "todo" ? !s : s === show);
+  }).slice(0, 300);
+  focus = Math.min(focus, Math.max(0, visible.length - 1));
+  $("#grid").innerHTML = visible.map((c, i) => {
+    const d = decisions[c.id] ?? {};
+    const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[ch]);
+    return `<article class="card ${d.status ?? ""} ${i === focus ? "focus" : ""}" data-i="${i}">
+      <img loading="lazy" src="${esc(small(c.imageUrl))}" data-full="${esc(c.imageUrl)}" alt="" />
+      <div class="meta">
+        <span class="year">${c.year} <small>· score ${c.score} · ${c.width}px</small></span>
+        <input data-f="title" value="${esc(d.title ?? c.title)}" placeholder="Title" />
+        <input data-f="location" value="${esc(d.location ?? c.location)}" placeholder="Location" />
+        <textarea data-f="clues" placeholder="Visual clues, one per line (shown at reveal)">${esc((d.clues ?? []).join("\n"))}</textarea>
+        <div class="desc">${esc(c.description)}</div>
+        <a href="${esc(c.sourceUrl)}" target="_blank" style="color:#f0a73a">${esc(c.provider)} · ${esc(c.license)}</a>
+        <div class="actions"><button class="ok">Approve</button><button class="no">Reject</button><button class="clear">↺</button></div>
+      </div></article>`;
+  }).join("");
+  stats();
+}
+
+async function decide(i, status) {
+  const c = visible[i]; if (!c) return;
+  const card = document.querySelector(`.card[data-i="${i}"]`);
+  const field = (f) => card.querySelector(`[data-f="${f}"]`).value.trim();
+  const decision = status === null ? null : {
+    status, title: field("title"), location: field("location"),
+    clues: field("clues").split("\n").map((s) => s.trim()).filter(Boolean),
+  };
+  if (decision) decisions[c.id] = decision; else delete decisions[c.id];
+  await fetch("/api/decision", { method: "POST", body: JSON.stringify({ id: c.id, decision }) });
+  card.className = `card ${decision?.status ?? ""}`;
+  stats();
+}
+
+function setFocus(i) {
+  focus = Math.max(0, Math.min(visible.length - 1, i));
+  document.querySelectorAll(".card").forEach((el) => el.classList.toggle("focus", Number(el.dataset.i) === focus));
+  document.querySelector(`.card[data-i="${focus}"]`)?.scrollIntoView({ block: "nearest", behavior: "smooth" });
+}
+
+$("#grid").addEventListener("click", (e) => {
+  const card = e.target.closest(".card"); if (!card) return;
+  const i = Number(card.dataset.i);
+  if (e.target.matches(".ok")) decide(i, "approved");
+  else if (e.target.matches(".no")) decide(i, "rejected");
+  else if (e.target.matches(".clear")) decide(i, null);
+  else if (e.target.matches("img")) { $("#zoomImg").src = e.target.dataset.full; $("#zoom").showModal(); }
+  else setFocus(i);
+});
+$("#zoom").addEventListener("click", () => $("#zoom").close());
+document.addEventListener("keydown", (e) => {
+  if (e.target.matches("input, textarea")) return;
+  if (e.key === "a") { decide(focus, "approved"); setFocus(focus + 1); }
+  if (e.key === "r") { decide(focus, "rejected"); setFocus(focus + 1); }
+  if (e.key === "j") setFocus(focus + 1);
+  if (e.key === "k") setFocus(focus - 1);
+});
+$("#decade").onchange = render;
+$("#show").onchange = render;
+load();
+</script>
+</body>
+</html>
